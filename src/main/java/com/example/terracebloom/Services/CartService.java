@@ -8,8 +8,10 @@ import com.example.terracebloom.Request.AddToCartRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class CartService {
@@ -25,11 +27,8 @@ public class CartService {
         User user = userRepository.findById(Math.toIntExact(request.getUserId()))
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Cart cart = cartRepository.findByUser(user).orElseGet(() -> {
-            Cart newCart = new Cart();
-            newCart.setUser(user);
-            return cartRepository.save(newCart);
-        });
+        Cart cart = cartRepository.findByUser(user)
+                .orElseGet(() -> cartRepository.save(new Cart(null, user, new ArrayList<>())));
 
         CartItem item = new CartItem();
         item.setCart(cart);
@@ -42,14 +41,16 @@ public class CartService {
         }
 
         if (request.getGardenerServiceId() != null) {
-            Gardener service = gardenerRepository.findById(Math.toIntExact(request.getGardenerServiceId()))
+            Gardener service = gardenerRepository.findById(request.getGardenerServiceId().intValue())
                     .orElseThrow(() -> new RuntimeException("Service not found"));
             item.setGardener(service);
         }
 
         cart.getItems().add(item);
-        return cartRepository.save(cart);
+        cartRepository.save(cart);
+        return cart;
     }
+
     public CartDto viewCart(Integer userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -57,15 +58,17 @@ public class CartService {
         Cart cart = cartRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
 
-        List<CartItemDto> itemDtos = cart.getItems().stream().map(item -> {
-            if (item.getProduct() != null) {
-                return CartItemDto.fromProduct(item.getProduct(), Math.toIntExact(item.getId()));
-            } else if (item.getGardener() != null) {
-                return CartItemDto.fromGardener(item.getGardener(), Math.toIntExact(item.getId()));
-            } else {
-                return null;
-            }
-        }).filter(Objects::nonNull).toList();
+        List<CartItemDto> itemDtos = cart.getItems().stream()
+                .map(item -> {
+                    if (item.getProduct() != null) {
+                        return CartItemDto.fromProduct(item.getProduct(), item.getId().intValue());
+                    } else if (item.getGardener() != null) {
+                        return CartItemDto.fromGardener(item.getGardener(), item.getId().intValue());
+                    } else {
+                        return null;
+                    }
+                }).filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
         double total = itemDtos.stream().mapToDouble(CartItemDto::getPrice).sum();
 
@@ -75,6 +78,7 @@ public class CartService {
                 .totalPrice(total)
                 .build();
     }
+
     public void removeItemFromCart(Integer userId, Integer cartItemId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -82,7 +86,7 @@ public class CartService {
         Cart cart = cartRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
 
-        CartItem item = cartItemRepository.findById(Long.valueOf(cartItemId))
+        CartItem item = cartItemRepository.findById(cartItemId.longValue())
                 .orElseThrow(() -> new RuntimeException("Cart item not found"));
 
         if (!cart.getItems().contains(item)) {
@@ -94,5 +98,3 @@ public class CartService {
         cartRepository.save(cart);
     }
 }
-
-

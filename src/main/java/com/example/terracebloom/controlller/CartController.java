@@ -16,16 +16,16 @@ public class CartController {
     private CartService cartService;
 
     @PostMapping("/add")
-    public ResponseEntity<Cart> addToCart(@RequestBody AddToCartRequest request) {
-        return ResponseEntity.ok(cartService.addToCart(request));
+    public ResponseEntity<String> addToCart(@RequestBody AddToCartRequest request) {
+        cartService.addToCart(request);
+        return ResponseEntity.ok("Item added to cart successfully");
     }
-
 
     @GetMapping("/view/{userId}")
     public ResponseEntity<CartDto> viewCart(@PathVariable Integer userId) {
-        return ResponseEntity.ok(cartService.viewCart(userId));
+        CartDto cartDto = cartService.viewCart(userId);
+        return ResponseEntity.ok(cartDto);
     }
-
 
     @DeleteMapping("/remove/{userId}/{itemId}")
     public ResponseEntity<String> removeItem(@PathVariable Integer userId,
@@ -34,4 +34,3 @@ public class CartController {
         return ResponseEntity.ok("Item removed from cart successfully.");
     }
 }
-
