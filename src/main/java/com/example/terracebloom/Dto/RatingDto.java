@@ -16,6 +16,7 @@ public class RatingDto {
     private Integer userId;
     private Float rating;
     private String comment;
+    private String image;
 
     public static RatingDto from (Rating rating) {
         RatingDto ratingDto = new RatingDto();
@@ -24,6 +25,7 @@ public class RatingDto {
         ratingDto.setUserId(rating.getUserId().getId());
         ratingDto.setRating(rating.getRating());
         ratingDto.setComment(rating.getComment());
+        ratingDto.setImage(rating.getImage());
         return ratingDto;
     }
 }

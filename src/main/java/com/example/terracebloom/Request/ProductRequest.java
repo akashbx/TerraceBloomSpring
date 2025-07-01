@@ -14,6 +14,9 @@ public class ProductRequest {
     private String name;
     private String description;
     private Float price;
+    private String category;
     private String image;
+    private String image2;
+    private String image3;
 
 }

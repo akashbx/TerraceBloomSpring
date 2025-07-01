@@ -1,10 +1,7 @@
 package com.example.terracebloom.Entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
@@ -24,5 +21,13 @@ public class Product {
 
     private Float price;
 
+    @Enumerated(EnumType.STRING)
+    @NonNull
+    private Category category;
+
     private String image;
+
+    private String image2;
+
+    private String image3;
 }
