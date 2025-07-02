@@ -1,6 +1,7 @@
 package com.example.terracebloom.controlller;
 
 import com.example.terracebloom.Dto.CartDto;
+import com.example.terracebloom.Dto.ResponseMessage;
 import com.example.terracebloom.Entity.Cart;
 import com.example.terracebloom.Request.AddToCartRequest;
 import com.example.terracebloom.Services.CartService;
@@ -16,9 +17,9 @@ public class CartController {
     private CartService cartService;
 
     @PostMapping("/add")
-    public ResponseEntity<String> addToCart(@RequestBody AddToCartRequest request) {
+    public ResponseEntity<ResponseMessage> addToCart(@RequestBody AddToCartRequest request) {
         cartService.addToCart(request);
-        return ResponseEntity.ok("Item added to cart successfully");
+        return ResponseEntity.ok(new ResponseMessage("success","Item added to cart successfully"));
     }
 
     @GetMapping("/view/{userId}")

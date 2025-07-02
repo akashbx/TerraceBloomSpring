@@ -4,6 +4,7 @@ import com.example.terracebloom.Dto.ResponseMessage;
 import com.example.terracebloom.Dto.UserDto;
 import com.example.terracebloom.Entity.JWTRequest;
 import com.example.terracebloom.Entity.JWTResponse;
+import com.example.terracebloom.Entity.UserPrincipal;
 import com.example.terracebloom.Security.JwtHelper;
 import com.example.terracebloom.Services.UserServices;
 import org.slf4j.Logger;
@@ -41,10 +42,15 @@ public class AuthController {
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
         String token = this.helper.generateToken(userDetails);
+        Integer userId = null;
+        if (userDetails instanceof UserPrincipal) {
+            userId = ((UserPrincipal) userDetails).getUser().getId(); // <-- Add this getter in UserPrincipal if missing
+        }
 
         JWTResponse response = JWTResponse.builder()
                 .jwtToken(token)
-                .email(userDetails.getUsername()) // returns username here
+                .email(userDetails.getUsername())
+                .userid(userId)
                 .build();
 
         return new ResponseEntity<>(response, HttpStatus.OK);

@@ -13,6 +13,7 @@ public class CartItemDto {
     private Integer id;
     private String type;
     private String name;
+    private String image;
     private Double price;
 
     public static CartItemDto fromProduct(Product product, Integer id) {
@@ -20,6 +21,7 @@ public class CartItemDto {
                 .id(id)
                 .type("PRODUCT")
                 .name(product.getName())
+                .image(product.getImage())
                 .price(Double.valueOf(product.getPrice()))
                 .build();
     }
@@ -29,6 +31,7 @@ public class CartItemDto {
                 .id(id)
                 .type("GARDENER")
                 .name(gardener.getName())
+                .image(gardener.getImage())
                 .price(Double.valueOf(gardener.getPrice()))
                 .build();
     }

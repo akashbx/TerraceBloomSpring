@@ -83,5 +83,13 @@ public class OrderService {
                 .totalPrice(order.getTotalPrice())
                 .build();
     }
-
+    public OrderDto getOrderHistory(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Order order = orderRepository.findByUser(user);
+        if (order == null) {
+            throw new RuntimeException("Order not found for user with id: " + userId);
+        }
+        return OrderDto.from(order);
+    }
 }

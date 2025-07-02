@@ -23,6 +23,9 @@ public class OrderController {
     public ResponseEntity<OrderDto> cancelOrder(@PathVariable Integer orderId) {
         return ResponseEntity.ok(orderService.cancelOrder(orderId));
     }
-
+    @GetMapping("History/{userId}")
+    public ResponseEntity<OrderDto> getOrderHistory(@PathVariable Integer userId) {
+        return ResponseEntity.ok(orderService.getOrderHistory(userId));
+    }
 }
 
