@@ -6,7 +6,11 @@ import com.example.terracebloom.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -33,35 +37,50 @@ public class OrderService {
         Cart cart = cartRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Cart not found"));
 
-        List<Product> products = cart.getItems().stream()
-                .filter(item -> item.getProduct() != null)
-                .map(CartItem::getProduct)
-                .toList();
+        List<CartItem> cartItems = new ArrayList<>(cart.getItems()); // snapshot of current items
 
-        List<Gardener> gardeners = cart.getItems().stream()
-                .filter(item -> item.getGardener() != null)
-                .map(CartItem::getGardener)
-                .toList();
+        double totalPrice = cartItems.stream()
+                .mapToDouble(item -> {
+                    if (item.getProduct() != null) {
+                        return item.getProduct().getPrice() * item.getQuantity();
+                    } else if (item.getGardener() != null) {
+                        return item.getGardener().getPrice() * item.getQuantity();
+                    }
+                    return 0.0;
+                })
+                .sum();
 
-        double totalPrice = products.stream().mapToDouble(Product::getPrice).sum() +
-                gardeners.stream().mapToDouble(Gardener::getPrice).sum();
+        Order order = new Order();
+        order.setUser(user);
+        order.setStatus("PLACED");
+        order.setTotalPrice(totalPrice);
+        order.setPlacedDate(LocalDate.now());
+        Order savedOrder = orderRepository.save(order);
 
-        Order order = Order.builder()
-                .user(user)
-                .products(products)
-                .gardeners(gardeners)
-                .status("PLACED")
-                .totalPrice(totalPrice)
-                .build();
+        List<OrderItem> orderItems = cartItems.stream().map(cartItem -> {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(savedOrder);
+            orderItem.setQuantity(cartItem.getQuantity());
 
-        Order saved = orderRepository.save(order);
+            if (cartItem.getProduct() != null) {
+                orderItem.setProduct(cartItem.getProduct());
+            } else if (cartItem.getGardener() != null) {
+                orderItem.setGardener(cartItem.getGardener());
+            }
 
-        // 🧹 Clear cart
+            return orderItem;
+        }).collect(Collectors.toList());
+
+        savedOrder.setItems(orderItems);
+        orderRepository.save(savedOrder);
+
         cart.getItems().clear();
         cartRepository.save(cart);
 
-        return OrderDto.from(saved);
+        return OrderDto.from(savedOrder);
     }
+
+
 
     public OrderDto cancelOrder(Integer orderId) {
         Order order = orderRepository.findById(orderId)
@@ -70,26 +89,15 @@ public class OrderService {
         if (order.getStatus().equalsIgnoreCase("CANCELLED")) {
             throw new RuntimeException("Order is already cancelled.");
         }
-
+        order.setPlacedDate(LocalDate.now());
         order.setStatus("CANCELLED");
         orderRepository.save(order);
 
-        return OrderDto.builder()
-                .id(order.getId())
-                .userId(order.getUser().getId())
-                .productIds(order.getProducts().stream().map(Product::getId).toList())
-                .gardenerIds(order.getGardeners().stream().map(Gardener::getId).toList())
-                .status(order.getStatus())
-                .totalPrice(order.getTotalPrice())
-                .build();
-    }
-    public OrderDto getOrderHistory(Integer userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        Order order = orderRepository.findByUser(user);
-        if (order == null) {
-            throw new RuntimeException("Order not found for user with id: " + userId);
-        }
         return OrderDto.from(order);
     }
+    public List<OrderDto> getOrderHistory(Integer userId) {
+        List<Order> orders = orderRepository.findOrderByUserId(userId);
+        return orders.stream().map(OrderDto::from).collect(Collectors.toList());
+    }
+
 }

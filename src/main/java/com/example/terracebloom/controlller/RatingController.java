@@ -18,11 +18,11 @@ public class RatingController {
     private RatingServices ratingServices;
 
     @PostMapping()
-    public ResponseEntity<Rating> submitRating(
+    public ResponseEntity<RatingDto> submitRating(
             @RequestPart("data") RatingRequest data,
             @RequestPart(value = "image", required = false) MultipartFile imageFile) {
         Rating savedRating = ratingServices.saveRating(data, imageFile);
-        return ResponseEntity.ok(savedRating);
+        return ResponseEntity.ok(RatingDto.from(savedRating));
     }
 
     @GetMapping("/{id}")
