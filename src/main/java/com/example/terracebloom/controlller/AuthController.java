@@ -43,14 +43,17 @@ public class AuthController {
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
         String token = this.helper.generateToken(userDetails);
         Integer userId = null;
+        String name = null;
         if (userDetails instanceof UserPrincipal) {
-            userId = ((UserPrincipal) userDetails).getUser().getId(); // <-- Add this getter in UserPrincipal if missing
+            userId = ((UserPrincipal) userDetails).getUser().getId();
+            name=((UserPrincipal)userDetails).getUser().getName();// <-- Add this getter in UserPrincipal if missing
         }
 
         JWTResponse response = JWTResponse.builder()
                 .jwtToken(token)
                 .email(userDetails.getUsername())
                 .userid(userId)
+                .name(name)
                 .build();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
