@@ -1,6 +1,7 @@
 package com.example.terracebloom.controlller;
 
 import com.example.terracebloom.Dto.RatingDto;
+import com.example.terracebloom.Dto.ResponseMessage;
 import com.example.terracebloom.Entity.Rating;
 import com.example.terracebloom.Request.RatingRequest;
 import com.example.terracebloom.Request.RatingUpdateRequest;
@@ -18,11 +19,11 @@ public class RatingController {
     private RatingServices ratingServices;
 
     @PostMapping()
-    public ResponseEntity<RatingDto> submitRating(
+    public ResponseEntity<ResponseMessage> submitRating(
             @RequestPart("data") RatingRequest data,
             @RequestPart(value = "image", required = false) MultipartFile imageFile) {
-        Rating savedRating = ratingServices.saveRating(data, imageFile);
-        return ResponseEntity.ok(RatingDto.from(savedRating));
+       ratingServices.saveRating(data, imageFile);
+        return ResponseEntity.ok(new ResponseMessage("Success","Rating submitted successfully"));
     }
 
     @GetMapping("/{id}")

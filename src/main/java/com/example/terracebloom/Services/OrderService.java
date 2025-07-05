@@ -42,7 +42,7 @@ public class OrderService {
         double totalPrice = cartItems.stream()
                 .mapToDouble(item -> {
                     if (item.getProduct() != null) {
-                        return item.getProduct().getPrice() * item.getQuantity();
+                        return item.getProduct().getPrice();
                     } else if (item.getGardener() != null) {
                         return item.getGardener().getPrice() * item.getQuantity();
                     }

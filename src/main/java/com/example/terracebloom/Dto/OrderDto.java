@@ -28,7 +28,7 @@ public class OrderDto {
                 return OrderItemDto.builder()
                         .type("PRODUCT")
                         .name(item.getProduct().getName())
-                        .quantity(item.getQuantity())
+                        .quantity(1)
                         .price(item.getProduct().getPrice())
                         .build();
             } else {
