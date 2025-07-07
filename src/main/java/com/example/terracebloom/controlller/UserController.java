@@ -1,5 +1,6 @@
 package com.example.terracebloom.controlller;
 
+import com.example.terracebloom.Dto.ResponseMessage;
 import com.example.terracebloom.Dto.UserDto;
 import com.example.terracebloom.Entity.User;
 import com.example.terracebloom.Services.UserServices;
@@ -19,8 +20,9 @@ public class UserController {
         userServices.createUser(userDto);
     }
     @PutMapping("/update")
-    public void updateUser(@RequestBody UserDto userDto){
+    public  ResponseEntity<ResponseMessage> updateUser(@RequestBody UserDto userDto){
         userServices.updateUser(userDto);
+        return ResponseEntity.ok(new ResponseMessage("success","User updated successfully"));
     }
     @DeleteMapping("/delete")
     public void deleteUser(@RequestBody Integer id){

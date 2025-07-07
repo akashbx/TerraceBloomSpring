@@ -1,5 +1,6 @@
 package com.example.terracebloom.Entity;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -36,6 +37,6 @@ public class User {
     private String state;
 
     private String zipcode;
-
+    @Nullable
     private String image;
 }
